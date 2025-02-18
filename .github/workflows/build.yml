@@ -25,8 +25,12 @@ jobs:
           Expand-Archive -Path "Vulkan/vulkan-loader.zip" -DestinationPath "Vulkan/"
         shell: pwsh
 
-      - name: Install SDL3
-        run: choco install sdl3 --pre -y
+      - name: Download SDL3 (Manually)
+        run: |
+          mkdir SDL3
+          Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.0.0/SDL3-3.0.0.zip" -OutFile "SDL3/SDL3.zip"
+          Expand-Archive -Path "SDL3/SDL3.zip" -DestinationPath "SDL3/"
+        shell: pwsh
 
       - name: Install GLM
         run: choco install glm -y
@@ -53,7 +57,7 @@ jobs:
       - name: Compile with Clang
         run: |
           mkdir build
-          clang++ -Wall -Wextra -std=c++20 -Iinclude -IVulkan/Vulkan-Headers-main/include -o build/program.exe src/*.cpp -lSDL3main -lSDL3 -lvulkan-1
+          clang++ -Wall -Wextra -std=c++20 -Iinclude -IVulkan/Vulkan-Headers-main/include -ISDL3/SDL3/include -o build/program.exe src/*.cpp -lSDL3main -lSDL3 -lvulkan-1
         shell: bash
 
       - name: Upload Executable
