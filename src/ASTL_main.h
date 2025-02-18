@@ -1,11 +1,11 @@
 #ifndef ASTL_MAIN_H
 #define ASTL_MAIN_H
 
-#include <glm/glm.hpp>
+#include <glm.hpp>
 #include <stdexcept>
 #include <SDL.h>
 #include <vulkan.h>
-#include <SDL3/SDL_vulkan.h>
+#include <SDL_vulkan.h>
 #include <vector>
 #include <string>
 #include <limits>
