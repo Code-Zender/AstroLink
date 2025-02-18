@@ -16,11 +16,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Vulkan Runtime (Loader + Headers)
+      - name: Download Vulkan Headers & Loader
         run: |
-          choco install vulkan-runtime -y
-          echo "VULKAN_SDK=C:\VulkanSDK" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "C:\VulkanSDK\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          mkdir Vulkan
+          Invoke-WebRequest -Uri "https://github.com/KhronosGroup/Vulkan-Headers/archive/refs/heads/main.zip" -OutFile "Vulkan/vulkan-headers.zip"
+          Invoke-WebRequest -Uri "https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/heads/main.zip" -OutFile "Vulkan/vulkan-loader.zip"
+          Expand-Archive -Path "Vulkan/vulkan-headers.zip" -DestinationPath "Vulkan/"
+          Expand-Archive -Path "Vulkan/vulkan-loader.zip" -DestinationPath "Vulkan/"
         shell: pwsh
 
       - name: Install SDL3
@@ -48,19 +50,10 @@ jobs:
       - name: Verify Clang Installation
         run: clang --version
 
-      - name: Verify Vulkan Installation
-        run: |
-          if (!(Get-Command vulkaninfo -ErrorAction SilentlyContinue)) { 
-            Write-Host "Vulkan Runtime nicht gefunden!" 
-            exit 1 
-          }
-          vulkaninfo
-        shell: pwsh
-
       - name: Compile with Clang
         run: |
           mkdir build
-          clang++ -Wall -Wextra -std=c++20 -Iinclude -o build/program.exe src/*.cpp -I"C:\VulkanSDK\Include" -L"C:\VulkanSDK\Lib" -lSDL3main -lSDL3 -lvulkan
+          clang++ -Wall -Wextra -std=c++20 -Iinclude -IVulkan/Vulkan-Headers-main/include -o build/program.exe src/*.cpp -lSDL3main -lSDL3 -lvulkan-1
         shell: bash
 
       - name: Upload Executable
