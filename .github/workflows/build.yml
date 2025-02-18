@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:  # Ermöglicht manuellen Start
 
 jobs:
   build:
@@ -17,11 +18,11 @@ jobs:
 
       - name: Download and Install Vulkan SDK
         run: |
-          $VULKAN_VERSION="1.3.261.1"  # Ersetze mit der neuesten Version
+          $VULKAN_VERSION="1.3.261.1"
           Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/$VULKAN_VERSION/windows/VulkanSDK-$VULKAN_VERSION-Installer.exe" -OutFile "VulkanSDK-Installer.exe"
           Start-Process -FilePath ".\VulkanSDK-Installer.exe" -ArgumentList "/S" -NoNewWindow -Wait
-          echo "VULKAN_SDK=C:\VulkanSDK\$VULKAN_VERSION" >> $GITHUB_ENV
-          echo "C:\VulkanSDK\$VULKAN_VERSION\Bin" >> $Env:Path
+          echo "VULKAN_SDK=C:\VulkanSDK\$VULKAN_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "C:\VulkanSDK\$VULKAN_VERSION\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install SDL3
         run: choco install sdl3 --pre
@@ -32,7 +33,7 @@ jobs:
       - name: Download stb_image.h
         run: |
           mkdir include
-          curl -o include/stb_image.h https://raw.githubusercontent.com/nothings/stb/master/stb_image.h
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/nothings/stb/master/stb_image.h" -OutFile "include/stb_image.h"
 
       - name: Set up Clang
         uses: egor-tensin/setup-clang@v1
@@ -44,12 +45,14 @@ jobs:
         run: clang --version
 
       - name: Verify Vulkan Installation
-        run: vulkaninfo || echo "Vulkan SDK nicht gefunden!"
+        run: |
+          where vulkaninfo || echo "Vulkan SDK nicht gefunden!"
+          vulkaninfo || echo "Fehler beim Abrufen der Vulkan-Info!"
 
       - name: Compile with Clang
         run: |
           mkdir build
-          clang++ -Wall -Wextra -std=c++20 -Iinclude -o build/program.exe src/*.cpp -I"C:\VulkanSDK\$VULKAN_VERSION\Include" -L"C:\VulkanSDK\$VULKAN_VERSION\Lib" -lSDL3 -lvulkan
+          clang++ -Wall -Wextra -std=c++20 -Iinclude -o build/program.exe src/*.cpp -I"$env:VULKAN_SDK/Include" -L"$env:VULKAN_SDK/Lib" -lSDL3main -lSDL3 -lvulkan
 
       - name: Upload Executable
         uses: actions/upload-artifact@v4
