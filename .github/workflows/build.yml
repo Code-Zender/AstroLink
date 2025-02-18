@@ -63,7 +63,7 @@ jobs:
         run: |
           mkdir build
           clang++ -Wall -Wextra -std=c++20 -Iinclude -IVulkan/Vulkan-Headers-main/include -ISDL3/SDL3/include -Iglm/glm-master -o build/program.exe src/*.cpp -lSDL3main -lSDL3 -lvulkan-1
-        shell: bash
+
 
       - name: Upload Executable
         uses: actions/upload-artifact@v4
