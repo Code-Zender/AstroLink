@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # Aktualisierte Version
 
       - name: Set up Clang
         uses: egor-tensin/setup-clang@v1
@@ -30,7 +30,7 @@ jobs:
           clang++ -Wall -Wextra -std=c++20 -o build/program.exe src/*.cpp
 
       - name: Upload Executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # Aktualisierte Version
         with:
           name: compiled-program
           path: build/program.exe
