@@ -28,7 +28,9 @@ jobs:
       - name: Download SDL3 (Manually)
         run: |
           mkdir SDL3
-          Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.0.0/SDL3-3.0.0-win64.zip" -OutFile "SDL3/SDL3.zip"
+          # Hier wird SDL 3.0.0-rc1 für Win64 heruntergeladen. Sollte diese URL nicht mehr gültig sein,
+          # bitte die aktuelle Release-URL von https://github.com/libsdl-org/SDL/releases anpassen.
+          Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.2.4/SDL3-3.2.4-win32-arm64.zip" -OutFile "SDL3/SDL3.zip"
           Expand-Archive -Path "SDL3/SDL3.zip" -DestinationPath "SDL3/"
         shell: pwsh
 
