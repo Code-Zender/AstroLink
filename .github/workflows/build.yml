@@ -34,8 +34,11 @@ jobs:
           Expand-Archive -Path "SDL3/SDL3.zip" -DestinationPath "SDL3/"
         shell: pwsh
 
-      - name: Install GLM
-        run: choco install glm -y
+      - name: Download GLM from GitHub
+        run: |
+          mkdir glm
+          Invoke-WebRequest -Uri "https://github.com/g-truc/glm/archive/refs/heads/master.zip" -OutFile "glm/glm.zip"
+          Expand-Archive -Path "glm/glm.zip" -DestinationPath "glm/"
 
       - name: Download stb_image.h
         run: |
@@ -59,7 +62,7 @@ jobs:
       - name: Compile with Clang
         run: |
           mkdir build
-          clang++ -Wall -Wextra -std=c++20 -Iinclude -IVulkan/Vulkan-Headers-main/include -ISDL3/SDL3/include -o build/program.exe src/*.cpp -lSDL3main -lSDL3 -lvulkan-1
+          clang++ -Wall -Wextra -std=c++20 -Iinclude -IVulkan/Vulkan-Headers-main/include -ISDL3/SDL3/include -Iglm/glm-master -o build/program.exe src/*.cpp -lSDL3main -lSDL3 -lvulkan-1
         shell: bash
 
       - name: Upload Executable
