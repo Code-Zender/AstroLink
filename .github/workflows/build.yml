@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # Läuft auf Windows
+    runs-on: windows-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -29,5 +29,8 @@ jobs:
           mkdir build
           clang++ -Wall -Wextra -std=c++20 -o build/program.exe src/*.cpp
 
-      - name: Run Program (Optional)
-        run: build\program.exe
+      - name: Upload Executable
+        uses: actions/upload-artifact@v3
+        with:
+          name: compiled-program
+          path: build/program.exe
