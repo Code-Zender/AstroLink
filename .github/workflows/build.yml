@@ -28,7 +28,7 @@ jobs:
       - name: Download SDL3 (Manually)
         run: |
           mkdir SDL3
-          Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.0.0/SDL3-3.0.0.zip" -OutFile "SDL3/SDL3.zip"
+          Invoke-WebRequest -Uri "https://github.com/libsdl-org/SDL/releases/download/release-3.0.0/SDL3-3.0.0-win64.zip" -OutFile "SDL3/SDL3.zip"
           Expand-Archive -Path "SDL3/SDL3.zip" -DestinationPath "SDL3/"
         shell: pwsh
 
