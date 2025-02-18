@@ -16,8 +16,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Vulkan SDK (via Chocolatey)
-        run: choco install vulkan-sdk -y
+      - name: Get Latest Vulkan SDK Version
+        id: get_vulkan_version
+        run: |
+          $version = (Invoke-WebRequest -Uri "https://vulkan.lunarg.com/sdk/home" | Select-String -Pattern 'Windows</td>\s*<td>([\d.]+)' | ForEach-Object { $_.Matches.Groups[1].Value })[0]
+          echo "VULKAN_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Download and Install Vulkan SDK
+        run: |
+          Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/$env:VULKAN_VERSION/windows/VulkanSDK-$env:VULKAN_VERSION-Installer.exe" -OutFile "VulkanSDK-Installer.exe"
+          Start-Process -FilePath ".\VulkanSDK-Installer.exe" -ArgumentList "/S" -NoNewWindow -Wait
+          echo "VULKAN_SDK=C:\VulkanSDK\$env:VULKAN_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "C:\VulkanSDK\$env:VULKAN_VERSION\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
 
       - name: Install SDL3
         run: choco install sdl3 --pre -y
@@ -33,6 +45,7 @@ jobs:
             Write-Host "Download fehlgeschlagen!" 
             exit 1 
           }
+        shell: pwsh
 
       - name: Set up Clang
         uses: egor-tensin/setup-clang@v1
@@ -50,11 +63,12 @@ jobs:
             exit 1 
           }
           vulkaninfo
+        shell: pwsh
 
       - name: Compile with Clang
         run: |
           mkdir build
-          clang++ -Wall -Wextra -std=c++20 -Iinclude -o build/program.exe src/*.cpp -I"C:\VulkanSDK\Include" -L"C:\VulkanSDK\Lib" -lSDL3main -lSDL3 -lvulkan
+          clang++ -Wall -Wextra -std=c++20 -Iinclude -o build/program.exe src/*.cpp -I"$env:VULKAN_SDK/Include" -L"$env:VULKAN_SDK/Lib" -lSDL3main -lSDL3 -lvulkan
         shell: bash
 
       - name: Upload Executable
